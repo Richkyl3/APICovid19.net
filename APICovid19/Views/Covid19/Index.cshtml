@@ -1,0 +1,49 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>สถานการณ์ COVID-19 ในเเต่ละจังหวัด</h2>
+
+<table id="listCovid19" class="table"></table>
+@section Scripts {
+    <script type="text/javascript" src="~/Scripts/library/library.js"></script>
+}
+<button class="button" onclick="$('#target').toggle();">Show Chart</button>
+<center>
+    <div id="target" style="display: none">
+        <h3>Bar Chart</h3>
+        <div id="barchart"></div>
+    </div>
+</center>
+<script type="text/javascript"
+        src="https://www.google.com/jsapi?autoload = { 'modules':[{
+'name':'visualization', 'version':'1', 'packages':['corechart'] }]}">
+</script>
+<script type="text/javascript">
+    google.load('visualization', '1.1', { packages: ['corechart'] });
+    google.setOnLoadCallback(drawBarChart);
+    function drawBarChart() {
+        $.get('https://covid19.ddc.moph.go.th/api/Cases/today-cases-by-provinces', {},
+            function (data) {
+                var tdata = new google.visualization.DataTable();
+                tdata.addColumn('string', 'province');
+                tdata.addColumn('number', 'total_case');
+                data = data.sort(function (a, b) {
+                    return b.total_case - a.total_case;
+                });
+                for (var i = 0; i < 10; i++) {
+                    tdata.addRow([data[i].province, data[i].total_case]);
+                }
+                var options = {
+                    width: 900,
+                    height: 500,
+                    bar: { groupWidth: "95%" },
+                };
+                var chart = new
+                    google.visualization.BarChart(document.getElementById('barchart'))
+                chart.draw(tdata, options);
+            });
+    }
+</script>
